@@ -1,0 +1,81 @@
+---
+title: "Course title: Generalized and linear mixed models for biologists"
+output: rtf_document
+csl: apa.csl
+bibliography: [glmm.bib, ecoevo.bib]
+header-includes:
+    - \usepackage[utf8]{inputenc}
+---
+
+## Learning outcomes (knowledge, skills, social competence and attitude):
+
+The student understands the theoretical framework for statistical methods applied to the biological sciences, specifically generalized linear models for count and binomial data and mixed models for clustered data.
+
+* Skills
+
+The student can:
+
+- effectively create exploratory, diagnostic, and expository graphs from data
+- choose and execute an appropriate statistical analysis for a given set of data and scientific questions
+- execute, trouble-shoot, and interpret the results of generalized, linear mixed, and generalized linear mixed models.
+
+* Social competence and attitude
+
+The student can:
+
+- communicate the scientific questions to be asked, justify and explain the connection to the results of a statistical analysis
+- appreciate the importance of rigorous and ethical approaches to statistical analysis, avoiding data snooping
+
+## Prerequisites:
+
+Theoretical knowledge and practical skills in applying statistical methods at the basic level:
+
+* understanding basic concepts (types of measurement scales, probability, basic types of distributions, central limit theorem, measures of central tendency and dispersion, variance, standard deviation, standard error, confidence interval, parameter, estimator, statistical test, statistical null and alternative hypotheses, type I and type II errors, significance level);
+* understanding and practical ability to perform basic statistical analyses (Student's t-test, simple analysis of regression and correlation, simple analysis of variance, multiple regression and ANCOVA).
+* Basic proficiency in the R programming language. 
+
+## Conditions of gaining credit:
+
+* active participation in lectures and practical activities
+* completion of basic homework exercises
+
+## Assessment methods and criteria for this course:
+
+* evaluation of short homework exercises
+
+## Full description (=content of the course):
+
+* exploratory graphics using ggplot (1 period) [@wickham2009,@cleveland_visualizing_1993]
+	* intro to quantitative display: graphical hierarchies
+	* ggplot basics
+	* intermediate ggplot: smooths and facets
+* review of modeling and inference (1 period) [@harrell_regression_2001]
+	* exploration vs prediction vs testing
+	* parameter counting and dimension reduction
+	* testing: parameter-level and model-level
+	* information criteria
+* introduction/review of generalized linear models (3 periods incl practical) [@McCullaghNelder1989,@faraway_extending_2006,@dobson_introduction_2008]
+	* links and families
+	* estimation basics
+	* parameterizing linear models: scales and contrasts
+	* model diagnostics
+	* testing hypotheses and interpreting results
+* intermediate generalized linear models (3 periods incl practical)
+	* diagnosing and addressing overdispersion
+	* diagnosing and addressing complete separation
+	* zero-inflation
+	* alternative families and links
+* mixed models (4 periods incl practical) [@gelman_data_2006,@zuur_mixed_2009]
+	* mixed model basics
+	* graphics
+	* frequentist estimation (lme4 and glmmTMB)
+	* Bayesian estimation (brms)
+* eco-evolutionary modeling (2 periods) [@collins_integrating_2009,@ellner_does_2011]
+    * review of differential equations
+	* models of trait evolution
+	* Price equations
+		* moment equations
+		* distributional/individual-based
+
+## Bibliography
+
