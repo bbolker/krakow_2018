@@ -125,32 +125,52 @@ $(document).ready(function () {
 <p>Please make sure you have the latest version of R (3.4.4) installed from <a href="https://cran.r-project.org/">CRAN</a>.</p>
 <p>The RStudio interface is strongly recommended; you can download it <a href="https://www.rstudio.com/products/rstudio/download/">here</a> (get the free Desktop version).</p>
 <p>Install primary GLMM-fitting packages (and a variety of extras):</p>
-<pre class="r"><code>## modeling packages
-mod_pkgs &lt;- c(&quot;bbmle&quot;,&quot;blme&quot;,&quot;brms&quot;,&quot;gamm4&quot;,&quot;glmmLasso&quot;,&quot;glmmML&quot;,
-              &quot;lme4&quot;,&quot;glmmTMB&quot;,&quot;MCMCglmm&quot;,&quot;robustlmm&quot;,
-              &quot;spaMM&quot;)
+<pre class="r"><code>get_INLA &lt;- FALSE
+## modeling packages
+mod_pkgs &lt;- c(&quot;bbmle&quot;, &quot;blme&quot;, &quot;brglm&quot;, &quot;brms&quot;, &quot;gamm4&quot;,
+              &quot;glmmLasso&quot;, &quot;glmmML&quot;, 
+              &quot;glmmTMB&quot;, &quot;lme4&quot;, &quot;MCMCglmm&quot;, &quot;pscl&quot;, &quot;robustlmm&quot;, &quot;spaMM&quot;)
 ## miscellaneous/data manipulation
-data_pkgs &lt;- c(&quot;tidyverse&quot;,&quot;reshape2&quot;,&quot;plyr&quot;, &quot;benchmark&quot;,
-               &quot;emdbook&quot;,&quot;SASmixed&quot;,&quot;devtools&quot;)
-## model processing/diagnostics/reporting
-diag_pkgs &lt;- c(&quot;afex&quot;,&quot;agridat&quot;, &quot;AICcmodavg&quot;, &quot;aods3&quot;, &quot;cAIC4&quot;, &quot;coda&quot;,
-               &quot;effects&quot;, &quot;emmeans&quot;, &quot;multcomp&quot;, &quot;arm&quot;, &quot;car&quot;,
-               &quot;Hmisc&quot;,&quot;HLMdiag&quot;,&quot;stargazer&quot;,&quot;texreg&quot;,&quot;rockchalk&quot;,
-               &quot;RLRsim&quot;,&quot;pbkrtest&quot;,&quot;lmerTest&quot;,&quot;broom&quot;)
+data_pkgs &lt;- c(&quot;benchmark&quot;, &quot;carData&quot;,
+               &quot;devtools&quot;, &quot;emdbook&quot;,
+               &quot;mlmRev&quot;,&quot;MEMSS&quot;, &quot;plyr&quot;,
+               &quot;reshape2&quot;, &quot;SASmixed&quot;, 
+               &quot;tidyverse&quot;)
+## model diagnostics/processing
+diag_pkgs &lt;- c(&quot;afex&quot;, &quot;agridat&quot;, &quot;AICcmodavg&quot;, &quot;aods3&quot;, &quot;arm&quot;, &quot;broom&quot;,
+               &quot;cAIC4&quot;, &quot;car&quot;, &quot;coda&quot;, &quot;DHARMa&quot;, &quot;effects&quot;, &quot;emmeans&quot;,
+               &quot;HLMdiag&quot;, &quot;Hmisc&quot;, &quot;lmerTest&quot;, &quot;multcomp&quot;, &quot;pbkrtest&quot;,
+               &quot;RLRsim&quot;, &quot;rockchalk&quot;, &quot;stargazer&quot;, 
+               &quot;texreg&quot;)
 ## graphics
 graph_pkgs &lt;- c(&quot;dotwhisker&quot;,&quot;ggplot2&quot;,&quot;ggstance&quot;,&quot;GGally&quot;,&quot;cowplot&quot;,
                 &quot;gridExtra&quot;,&quot;plotrix&quot;,&quot;dotwhisker&quot;,&quot;plotMCMC&quot;)
 all_pkgs &lt;- c(mod_pkgs,data_pkgs,diag_pkgs,graph_pkgs)
+## list of available packages on repository
 avail_pkgs &lt;- rownames(available.packages())
+miss_pkgs &lt;- setdiff(all_pkgs,avail_pkgs)
+if (length(miss_pkgs)&gt;0) {
+    stop(&quot;some packages not available??&quot;,miss_pkgs)
+}
 already_installed &lt;- rownames(installed.packages())
+## don't re-install if already installed
 to_install &lt;- setdiff(all_pkgs,already_installed)
-if (length(to_install)&gt;0) {
+if (length(to_install)==0) {
+    cat(&quot;all done\n&quot;)
+} else {
     install.packages(to_install,dependencies=TRUE)
 }
-devtools::install_github(&quot;bbolker/broom.mixed&quot;)
+## update everything ...
+update.packages(ask=FALSE)
+if (!&quot;broom.mixed&quot; %in% already_installed) {
+    devtools::install_github(&quot;bbolker/broom.mixed&quot;)
+}
 ## get INLA (optional!)
-source(&quot;http://www.math.ntnu.no/inla/givemeINLA.R&quot;)</code></pre>
-<p><code>grid</code>, <code>nlme</code>, <code>MASS</code>, <code>mgcv</code> should not need to be (re)installed, as they come with a standard R installation.</p>
+if (get_INLA) {
+    source(&quot;http://www.math.ntnu.no/inla/givemeINLA.R&quot;)
+}</code></pre>
+<p>There is no need to (re)install packages such as <code>grid</code>, <code>nlme</code>, <code>MASS</code>, <code>mgcv</code>, as they come with a standard R installation.</p>
+<p>Last updated: 2018-04-20 12:19:06</p>
 
 
 
