@@ -1,0 +1,5 @@
+for i in intro glm_basic glm_intermediate glmm ecoevo datavis; do
+   for j in html pdf; do
+       make notes/$i.$j
+   done
+done
