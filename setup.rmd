@@ -9,31 +9,50 @@ The RStudio interface is strongly recommended; you can download it [here](https:
 Install primary GLMM-fitting packages (and a variety of extras):
 
 ```{r pkg1,eval=FALSE}
+get_INLA <- FALSE
 ## modeling packages
-mod_pkgs <- c("bbmle","blme","brms","gamm4","glmmLasso","glmmML",
-              "lme4","glmmTMB","MCMCglmm","robustlmm",
-              "spaMM")
+mod_pkgs <- c("bbmle", "blme", "brglm", "brms", "gamm4",
+              "glmmLasso", "glmmML", 
+              "glmmTMB", "lme4", "MCMCglmm", "pscl", "robustlmm", "spaMM")
 ## miscellaneous/data manipulation
-data_pkgs <- c("tidyverse","reshape2","plyr", "benchmark",
-               "emdbook","SASmixed","devtools")
-## model processing/diagnostics/reporting
-diag_pkgs <- c("afex","agridat", "AICcmodavg", "aods3", "cAIC4", "coda",
-               "effects", "emmeans", "multcomp", "arm", "car",
-               "Hmisc","HLMdiag","stargazer","texreg","rockchalk",
-               "RLRsim","pbkrtest","lmerTest","broom")
+data_pkgs <- c("benchmark", "carData",
+               "devtools", "emdbook",
+               "mlmRev","MEMSS", "plyr",
+               "reshape2", "SASmixed", 
+               "tidyverse")
+## model diagnostics/processing
+diag_pkgs <- c("afex", "agridat", "AICcmodavg", "aods3", "arm", "broom",
+               "cAIC4", "car", "coda", "DHARMa", "effects", "emmeans",
+               "HLMdiag", "Hmisc", "lmerTest", "multcomp", "pbkrtest",
+               "RLRsim", "rockchalk", "stargazer", 
+               "texreg")
 ## graphics
 graph_pkgs <- c("dotwhisker","ggplot2","ggstance","GGally","cowplot",
                 "gridExtra","plotrix","dotwhisker","plotMCMC")
 all_pkgs <- c(mod_pkgs,data_pkgs,diag_pkgs,graph_pkgs)
+## list of available packages on repository
 avail_pkgs <- rownames(available.packages())
+miss_pkgs <- setdiff(all_pkgs,avail_pkgs)
+if (length(miss_pkgs)>0) {
+    stop("some packages not available??",miss_pkgs)
+}
 already_installed <- rownames(installed.packages())
+## don't re-install if already installed
 to_install <- setdiff(all_pkgs,already_installed)
-if (length(to_install)>0) {
+if (length(to_install)==0) {
+    cat("all done\n")
+} else {
     install.packages(to_install,dependencies=TRUE)
 }
-devtools::install_github("bbolker/broom.mixed")
+## update everything ...
+update.packages(ask=FALSE)
+if (!"broom.mixed" %in% already_installed) {
+    devtools::install_github("bbolker/broom.mixed")
+}
 ## get INLA (optional!)
-source("http://www.math.ntnu.no/inla/givemeINLA.R")
+if (get_INLA) {
+    source("http://www.math.ntnu.no/inla/givemeINLA.R")
+}
 ```
 
 There is no need to (re)install packages such as `grid`, `nlme`, `MASS`, `mgcv`, as they come with a standard R installation. 
