@@ -1,0 +1,6 @@
+---
+title: "generalized linear mixed models"
+author: "Ben Bolker"
+---
+
+
