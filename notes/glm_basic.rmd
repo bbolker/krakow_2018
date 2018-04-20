@@ -1,7 +1,14 @@
 ---
 title: "basic generalized linear models"
 author: "Ben Bolker"
+bibliography: "../glmm.bib"
 ---
+
+```{r pkgs,include=FALSE}
+library(ggplot2); theme_set(theme_bw())
+library(ggExtra)
+library(cowplot)
+```
 
 ## Linear models
 
@@ -25,20 +32,21 @@ author: "Ben Bolker"
 $$
 z = a + bx + cy + \epsilon
 $$
-or
+or (more predictor variables)
 $$
 y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \ldots + \epsilon
 $$
-or 
+or (more flexible distribution syntax)
 $$
 y \sim \textrm{Normal}(\beta_0 + \beta_1 x_1 + \beta_2 x_2 + \ldots, \sigma^2)
 $$
-or
+or (more complex sets of predictors)
 $$
 \begin{split}
-\mu & \sim \mathbf{X} \mathbf{\beta} \\
+\boldsymbol{\mu} & = \mathbf{X} \mathbf{\beta} \\
 y_i & \sim \textrm{Normal}(\mu_i,\sigma^2)
 \end{split}
+$$
 
 ## what does "linear" mean?
 
@@ -56,9 +64,27 @@ rather than the *conditional* distribution (i.e., residuals)
 look at residuals
 - otherwise have to fit the model first!
 
+## example
+
+MPG vs displacement for cars: `lm(log10(mpg)~log10(disp),mtcars)`
+
+```{r marg_plot,echo=FALSE,fig.width=10}
+g1 <- ggMarginal(ggplot(mtcars,aes(disp,mpg))+geom_point()+
+                 scale_x_log10()+scale_y_log10()+
+                 geom_smooth(method="lm")+
+                 ggtitle("marginal"),
+           margins="y",type="histogram")
+aa <- broom::augment(lm(log10(mpg)~log10(disp),mtcars),data=mtcars)
+g2 <- ggMarginal(ggplot(aa,aes(disp,.resid))+geom_point()+
+                 scale_x_log10()+
+                 ggtitle("conditional"),
+                 margins="y",type="histogram")
+plot_grid(g1,g2)
+```
+
 ## categorical predictors
 
-- how does a categorical predictor fit into this scheme?
+- how do categorical predictors fit into this scheme?
 - *dummy variables*: convert to 0/1 values
 - R does this automatically with formula syntax
 - e.g. for two levels:
@@ -69,6 +95,7 @@ model.matrix(~flavour,dd)
 ```
 
 - first alphabetical level (`chocolate`) used as default
+- ![](pix/dbend_sm.png) *ordered factors* are handled differently
 
 ## R formulas
 
@@ -104,6 +131,8 @@ If confused, (1) try to write out the equation; (2) `model.matrix()`
      - $\beta_1$ = intercept = unweighted mean of all levels
      - $\beta_{i}$ = difference between level $i$ and mean; last level not included (!)
 
+too many ways to change contrasts (globally via `options()`; as attribute of factor; `contrasts` argument in `lm()`)
+
 ## Example 1 (treatment contrasts)
 
 Data on ant colonies from @GotelliEllison2004:
@@ -124,9 +153,8 @@ pr(lm1 <- lm(colonies~place,data=ants))
 pr(lm2 <- update(lm1, contrasts=list(place=contr.sum)))
 ```
 
-
 ```{r}
-data(lizards)
+data(lizards,package="brglm")
 ```
 
 ## Scaling and centering
@@ -188,3 +216,5 @@ use $\mu = \exp(\beta_0+\beta_1 x)$
 ## testing hypotheses and interpreting results
 
 - something here
+
+## References

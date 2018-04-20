@@ -1,5 +1,5 @@
 ---
-title: Data visualization, focusing on `ggplot` and multilevel data
+title: Data visualization, focusing on ggplot and multilevel data
 author: Ben Bolker
 date: "`r format(Sys.time(), '%H:%M %d %B %Y')`"
 bibliography: analysis.bib
@@ -26,7 +26,7 @@ theme_set(theme_bw())
 
 ## Goals/contexts of data visualization
 
-### Exploration
+**Exploration**
 
 * want *nonparametric*/*robust* approaches: impose as few assumptions as possible
  * boxplots instead of mean/standard deviation (generally base locations on medians rather than means)
@@ -35,7 +35,7 @@ theme_set(theme_bw())
 * canned routines for standard tasks, flexibility for non-standard tasks
 * manipulation in the context of visualization: need to summarize on the fly
 
-### Diagnostics
+**Diagnostics**
 
 * attempt to determine fitting problems graphically: looking for absence of patterns in residuals
 * e.g. scale-location plot, Q-Q plot; `plot.lm`
@@ -45,7 +45,7 @@ theme_set(theme_bw())
 * code contrasts for visual simplicity (e.g. deviations from linearity: Q-Q plots, signed square-root profiles)
 
 
-### Presentation
+**Presentation**
 
 * how closely should one match analyses with graphs?  "Let the data speak for themselves" vs "Tell a story"
 * display data (e.g. boxplots, standard deviations) or inferences from data (confidence intervals)
@@ -61,14 +61,14 @@ Visual perception of quantitative information: [Cleveland hierarchy](http://proc
 
 ![cleveland](pix/data_vis_1.png)
 
-### Data presentation scales with data size
+**Data presentation scales with data size**
 
 * **small** show all points, possibly dodged/jittered, with some summary statistics: dotplot, beeswarm. Simple trends (linear/GLM)
 * **medium** boxplots, loess, histograms, GAM (or linear regression)
 * **large** modern nonparametrics: violin plots, hexbin plots, kernel densities: computational burden, and display overlapping problems, relevant
 * combinations or overlays where appropriate (beanplot)
 
-### Rules of thumb
+## Rules of thumb
 
 * (Continuous) response on the $y$-axis, most salient (continuous) predictor on the $x$-axis
 * Put most salient comparisons within the same subplot (distinguished by color/shape), and nearby within the subplot when grouping bars/points
@@ -124,7 +124,7 @@ xyplot(incidence/size~period|herd,data=cbpp,type="l")
 
 ## Challenges
 
-### high-dimensional data (esp continuous)
+## high-dimensional data (esp continuous)
 
 Possible solutions:
 
@@ -133,32 +133,32 @@ Possible solutions:
 - contour plots (worse)
 - perspective plots (worst?)
 
-###  large data sets
+##  large data sets
 
 - problems with computation, file size, presentation
 - file size: raster (PNG) instead of vector (PS/PDF), `pch="."`
 - overplotting (alpha), kernel density estimation, hexagonal binning
 - summarize (quantiles, kernel densities, etc.)
 
-### discrete data
+## discrete data
 
 - lots of point overlap; jittering OK for exploratory analysis but ugly.  Need to summarize/bin appropriately (`stat_sum`); beeswarm plots
 
-### spatial data
+## spatial data
 
 - the best parts of the Cleveland hierarchy ($x$ and $y$ axes) are already taken, usually have to resort to color/size/pie charts. Representing uncertainty is a big challenge, usually must be done separately (transparency/saturation?)
 
-### compositional data
+## compositional data
 
 - would like to display "sum to 1.0" constraint but also allow accurate comparison of magnitudes: stacked bars vs grouped bars (or dotplots)?
 - harder if also need to represent uncertainty (would like to show correlations among components)
 - *ternary diagrams*: nice but don't generalize past 3 elements
 
-### multilevel data
+## multilevel data
 
 - often hard (or messy) to represent all levels of variation
 
-### next generation tools 
+## next generation tools 
 
 - dynamic/exploratory graphics: [ggobi](http://www.ggobi.org), [Mondrian](http://rosuda.org/mondrian/Mondrian.html), [latticist] (http://code.google.com/p/latticist), JMP, [Shiny](http://www.rstudio.com/shiny/), [Gapminder](http://www.gapminder.org/), [googleVis](http://code.google.com/p/google-motion-charts-with-r/), [rCharts](http://rcharts.io/), [ggviz](https://github.com/rstudio/ggvis) (next-generation/interactive `ggplot2`)
 - GUI frameworks: JMP, [R Commander](http://socserv.mcmaster.ca/jfox/Misc/Rcmdr/), [Deducer](cran.r-project.org/web/packages/Deducer/index.html), [Rattle](rattle.togaware.com/), [web interface to ggplot2](http://www.yeroon.net/ggplot2/), Shiny
@@ -175,13 +175,13 @@ Possible solutions:
 
 ## Data visualization in R
 
-### Base graphics 
+## Base graphics 
 
 - simple 'canvas' approach
 - straightforward, easy to customize
 - most plot methods written in base graphics
 
-### Lattice
+## Lattice
 
 - newer
 - documented in a book [@sarkar_lattice_2008]
@@ -193,7 +193,7 @@ Possible solutions:
 - some plot methods (nlme package)
 - `latticeExtra`, `directlabels` packages may be handy
 
-### ggplot 
+## ggplot 
 
 - newest
 - based on Wilkinson's ''Grammar of Graphics''
@@ -211,7 +211,7 @@ Possible solutions:
 
 mappings + geoms
 
-### Data
+## Data
 
 Specified explicitly as part of a `ggplot` call:
 
