@@ -38,3 +38,5 @@ source("http://www.math.ntnu.no/inla/givemeINLA.R")
 
 There is no need to (re)install packages such as `grid`, `nlme`, `MASS`, `mgcv`, as they come with a standard R installation. 
 
+
+Last updated: `r Sys.time()`
