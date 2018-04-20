@@ -36,5 +36,5 @@ devtools::install_github("bbolker/broom.mixed")
 source("http://www.math.ntnu.no/inla/givemeINLA.R")
 ```
 
-`grid`, `nlme`, `MASS`, `mgcv` should not need to be (re)installed, as they come with a standard R installation. 
+There is no need to (re)install packages such as `grid`, `nlme`, `MASS`, `mgcv`, as they come with a standard R installation. 
 
