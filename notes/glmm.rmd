@@ -1,6 +1,240 @@
 ---
 title: "generalized linear mixed models"
 author: "Ben Bolker"
+bibliography: "../glmm.bib"
 ---
 
+```{r knitr,include=FALSE}
+require("knitr")
+knit_hooks$set(crop=hook_pdfcrop)
+opts_chunk$set(fig.width=5,fig.height=4,
+               out.width="0.6\\textwidth",
+               fig.align="center",
+               tidy=FALSE,echo=FALSE,warning=FALSE,message=FALSE)
+```
 
+```{r pkgs}
+library(lattice)
+library(plotrix) ## for axis.break
+library(reshape2)
+library(ggplot2)
+library(RColorBrewer)
+library(mvbutils) ## for foodweb()
+library(lme4)
+library(grid)
+zmargin <- theme(panel.spacing=unit(0,"lines"))
+library(scales) ## for 'scientific', 'trans_format'
+theme_set(theme_bw())
+```
+
+\newcommand{\X}{\bm X}
+\newcommand{\Z}{\bm Z}
+\newcommand{\bbeta}{\bm \beta}
+\newcommand{\bb}{\bm b}
+\newcommand{\bu}{\bm u}
+\newcommand{\bLambda}{\bm Lambda}
+\newcommand{\bEta}{\bm \eta}
+\newcommand{\btheta}{\bm \theta}
+\newcommand{\bzero}{\bm 0}
+
+## (Generalized) linear mixed models
+
+(G)LMMs: a statistical modeling framework incorporating:
+
+-   combinations of categorical and continuous predictors,\
+    and interactions
+-   (some) non-Normal responses\
+    (e.g. binomial, Poisson, and extensions)
+-   (some) nonlinearity\
+    (e.g. logistic, exponential, hyperbolic)
+-   non-independent (grouped) data
+
+![image](pix/models-glmm.pdf){width="\textwidth"}
+
+## Coral protection from seastars (*Culcita*) by symbionts [@mckeon_multiple_2012]
+
+```{r culcita1}
+stierdat <- read.csv("../data/culcitalogreg.csv")
+stierdat$ttt <- as.factor(stierdat$ttt) ## treatment should be a factor
+## contrast matrix
+cmat <- matrix(c(0,1,1,1,0,1,-1,0,0,1,1,-2),ncol=3,
+               dimnames=list(NULL,c("symb","crab.vs.shr","addsymb")))
+contrasts(stierdat$ttt) <- cmat
+stierdat$block <- as.factor(stierdat$block) ## not really necessary but logical
+stierdat <- stierdat[,1:4]   ## don't really need the rest
+mod0 <- glm(predation~ttt+block,binomial,data=stierdat)
+mod1 <- glm(predation~ttt,binomial,data=stierdat)
+library(lme4)
+mod2 <- glmer(predation~ttt+(1|block),family=binomial,data=stierdat)
+## AGQ 
+mod2B <- glmer(predation~ttt+(1|block),family=binomial,
+               nAGQ=20,data=stierdat)
+library(MASS)
+library(nlme)
+mod5=glmmPQL(predation~ttt,random=~1|block,family=binomial,data=stierdat)
+levels(stierdat$ttt) <- c("none","shrimp","crabs","both")
+m <- melt(stierdat[,1:3],id.vars=1:2)
+m2 <- dcast(m,ttt~variable,fun.aggregate=mean)
+m3 <- dcast(m,ttt+block~variable,fun.aggregate=sum)
+p <- with(m3,table(predation,ttt))
+``` 
+
+```{r bplot1,fig.width=8,fig.height=6,out.width="0.8\\textwidth"}
+op <- par(las=1,cex=1.5,bty="l")
+bb <- barplot(p,ylab="Number of blocks",xlab="Symbionts",
+              main="Number of predation events")
+bloc <- apply(p,2,cumsum)
+midb <- rbind(bloc[1,]/2,
+              (bloc[1,]+bloc[2,])/2,
+              (bloc[2,]+bloc[3,])/2)
+text(bb[col(p)][p>0],midb[p>0],c(0,1,2)[row(p)][p>0])
+par(op)
+```
+
+## Environmental stress: *Glycera* cell survival (D. Julian unpubl.)
+
+```{r glycera}
+x <- read.csv("../data/Live-Dead Tabulated Counts.csv")
+## utility function for factoring/renaming variables before
+##  lattice plot
+rnfac <- function(dat,vars) {
+  if (!all(vars %in% names(dat))) stop("unknown variable")
+  for (v in vars) {
+    dat[[v]] <- factor(dat[[v]])
+    levels(dat[[v]]) <- paste(v,"=",round(as.numeric(levels(dat[[v]])),2),sep="")
+  }
+  dat
+}
+sc <- function(x) { (x-min(x))/diff(range(x))}
+xsc <- x
+predvars <- c("Osm","Cu","H2S","Anoxia")
+for (i in predvars) {
+  xsc[[i]] <- sc(xsc[[i]])
+}
+xsc$Osm <- xsc$Osm-0.5
+## xsc$O2 <- 1-xsc$O2
+## names(xsc)[names(xsc)=="O2"] <- "anox"
+xr0 <- within(x,FractionAlive <- Alive/(Alive+Dead))
+xr <- melt(subset(xr0,select=-c(Alive,Dead)),id.vars=1:5)
+
+x4 <- dcast(xr,H2S+Anoxia+Cu+Osm~.,fun.aggregate=mean)
+names(x4)[5] <- "all"
+x5 <- rnfac(x4,c("Anoxia","Osm"))
+
+## FIXME: replace with ColorBrewer colours?
+cmgen.colors  <- function (n,h1=6/12,h2=10/12,maxs=0.5)  {
+    if ((n <- as.integer(n[1])) > 0) {
+        even.n <- n%%2 == 0
+        k <- n%/%2
+        l1 <- k + 1 - even.n
+        l2 <- n - k + even.n
+        c(if (l1 > 0) hsv(h = h1,
+                          s = seq(maxs, ifelse(even.n, 0.5/k, 0), length.out = l1),
+                          v = 1),
+          if (l2 > 1) hsv(h = h2,
+                          s = seq(0, maxs, length.out = l2)[-1],
+                          v = 1))
+    }
+    else character(0)
+}
+rb.colors <- function(n) {
+  cmgen.colors(n,h1=0,h2=0.7,maxs=1)
+}
+```
+ 
+## *Arabidopsis* response to fertilization & herbivory [@banta_comprehensive_2010]
+
+## Coral demography (J.-S. White unpubl.)
+```{r}
+load("../data/culcita.RData")
+library(lme4)
+cmod1 <- glmer(predation~ttt+(1|block),data=culcita_dat,
+               family=binomial,nAGQ=10)
+cmod3 <- glm(predation~ttt,data=culcita_dat,family=binomial)
+## jump through hoops to get GLM to estimate without complete-separation blocks 7,8,9 messing everything up!
+cmod4 <- glm(predation~ttt+block,data=transform(culcita_dat,block=relevel(block,2)),
+             family=binomial,
+             start=c(2,-4,-4,-6,-2,0,0,4,5,30,30,30,5))
+             ## contrasts=list(block=contr.sum),
+             ## start=rep(0,)
+             ## start=c(10,-4,-5,-6,-20,-8,-8,-8,-5,-3,20,20,20))
+r <- ranef(cmod1,condVar=TRUE)
+## set up plots
+library(coefplot2)
+f1 <- coeftab(cmod1)
+f3 <- coeftab(cmod3)
+f4 <- coeftab(cmod4)[1:4,]
+r1 <- coeftab(cmod1,ptype="ranef")
+r2 <- f3[1,]  ## intercept
+r4 <- coeftab(cmod4)[-(1:4),]
+v <- data.frame(predict(cmod4,
+             newdata=data.frame(block=factor(1:10),ttt="none"),
+             se.fit=TRUE))
+v$fit <- v$fit-mean(v$fit)
+v <- setNames(v[,1:2],c("Estimate","Std..Error"))
+w <- data.frame(Estimate=rep(0,10),
+                Std..Error=NA,row.names=1:10)
+## less clunky way to do this?
+dd <- function(X,method,type,
+               strip="^ttt") {
+  data.frame(method,type,
+             p=gsub(strip,"",rownames(X)),X[,1:2],
+             stringsAsFactors=FALSE)
+}
+allEsts <- rbind(dd(f1,"mixed","ttt"),
+      dd(f3,"pooled","ttt"),
+      dd(f4,"fixed","ttt"),
+      dd(r1,"mixed","blocks",
+         strip="block\\.\\(Intercept\\)"),
+      dd(v,"fixed","blocks"),
+      dd(w,"pooled","blocks"))
+allEsts <- transform(allEsts,
+   p=factor(p,levels=gtools::mixedsort(unique(p))))
+```
+
+```{r glycplot1,out.width="\\textwidth",fig.width=8,fig.height=5}
+orig <- trellis.par.get()
+pad <- 0 ## 15 for regular layout
+trellis.par.set(layout.widths=list(right.padding=pad,left.padding=pad),
+                regions=list(col=rb.colors(100)),
+##                regions=list(col=brewer.pal(11,"RdBu")),
+## leave text alone for regular layout
+                add.text=list(cex=0.8),axis.text=list(cex=0.5))
+levels(x5$Anoxia) <- c("Normoxia","Anoxia")
+## print(levelplot(`(all)`~factor(H2S)*factor(Cu)|Anoxia*Osm,
+##          col.region=rb.colors(100),
+##          data=x5,
+##          xlab=expression(H[2]*S),
+##          ylab="Copper"))
+levelplot(all~factor(H2S)*factor(Cu)|Osm*Anoxia,
+                col.region=rb.colors(100), ## brewer.pal(11,"RdBu"), ## rb.colors(100),
+                data=x5,
+                xlab=expression(H[2]*S),
+                ylab="Copper")
+trellis.par.set(theme=orig) ## restore settings
+## FIXME: redo in ggplot2?  LOW PRIORITY
+```
+
+```{r arabplot1,fig.width=7,fig.height=6,out.width="0.7\\textwidth"}
+panel.stripplot2 <-
+function (x, y, jitter.data = FALSE, factor = 0.5, amount = NULL, 
+    horizontal = TRUE, groups = NULL, ...) 
+{
+    if (!any(is.finite(x) & is.finite(y))) 
+        return()
+    panel.sizeplot(x = x, y = y, jitter.x = jitter.data && !horizontal, 
+        jitter.y = jitter.data && horizontal, factor = factor, 
+        amount = amount, groups = groups, horizontal = horizontal, 
+        ...)
+}
+load("../data/Banta.RData")
+trellis.par.set(list(fontsize=list(text=20)))
+stripplot(jltf ~ amd|nutrient, 
+                data=within(dat.tf,jltf <-jitter(log(total.fruits+1),
+                  amount=0.05)),
+                strip=strip.custom(strip.names=c(TRUE,TRUE)),
+                groups=gen, type=c('p','a'),
+                ylab="Log(1+fruit set)")
+##                main="panel: nutrient, color: genotype")
+## trellis.par.set(theme=orig) ## restore settings
+```

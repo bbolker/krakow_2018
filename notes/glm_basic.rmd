@@ -4,10 +4,11 @@ author: "Ben Bolker"
 bibliography: "../glmm.bib"
 ---
 
-```{r pkgs,include=FALSE}
+```{r pkgs}
 library(ggplot2); theme_set(theme_bw())
 library(ggExtra)
 library(cowplot)
+library(dotwhisker)
 ```
 
 ## Linear models
@@ -66,21 +67,27 @@ look at residuals
 
 ## example
 
-MPG vs displacement for cars: `lm(log10(mpg)~log10(disp),mtcars)`
+MPG vs displacement for cars
+
+```{r cars_lm}
+cars_lm <- lm(log10(mpg)~log10(disp),mtcars)
+```
 
 ```{r marg_plot,echo=FALSE,fig.width=10}
 g1 <- ggMarginal(ggplot(mtcars,aes(disp,mpg))+geom_point()+
                  scale_x_log10()+scale_y_log10()+
                  geom_smooth(method="lm")+
                  ggtitle("marginal"),
-           margins="y",type="histogram")
-aa <- broom::augment(lm(log10(mpg)~log10(disp),mtcars),data=mtcars)
+                 margins="y",type="histogram")
+aa <- broom::augment(cars_lm,data=mtcars)
 g2 <- ggMarginal(ggplot(aa,aes(disp,.resid))+geom_point()+
                  scale_x_log10()+
                  ggtitle("conditional"),
                  margins="y",type="histogram")
 plot_grid(g1,g2)
 ```
+
+(We'll come back to how to judge this later)
 
 ## categorical predictors
 
@@ -91,15 +98,16 @@ plot_grid(g1,g2)
 
 ```{r}
 dd <- data.frame(flavour=rep(c("chocolate","vanilla"),c(2,3)))
+print(dd)
 model.matrix(~flavour,dd)
 ```
 
-- first alphabetical level (`chocolate`) used as default
+- first alphabetical level (`chocolate`) used as default (use `relevel()` or `factor(...,levels=...)` to change default)
 - ![](pix/dbend_sm.png) *ordered factors* are handled differently
 
 ## R formulas
 
-- "Wilkinson-Rogers" notation
+- @WilkinsonRogers1973
 - `response ~ predictor1 + predictor2 + ...`
 - numeric variables used "as is"
 - categorical variables (factors) converted to dummy variables
@@ -147,7 +155,7 @@ pr <- function(m) printCoefmat(coef(summary(m)),digits=3,signif.stars=FALSE)
 pr(lm1 <- lm(colonies~place,data=ants))
 ```
 
-## Ants: change to sum-to-zero contrasts
+## Ants: sum-to-zero contrasts
 
 ```{r ants2}
 pr(lm2 <- update(lm1, contrasts=list(place=contr.sum)))
@@ -157,16 +165,57 @@ pr(lm2 <- update(lm1, contrasts=list(place=contr.sum)))
 data(lizards,package="brglm")
 ```
 
-## Scaling and centering
+## Interactions: example
 
-- Schielzeth
+- Bear road-crossing
+- Predictor variables: sex (categorical: M/F), road type (categorical: major/minor), road length (continuous)
+- **Two-way interactions**
+     - sex $\times$ road length: "are females more sensitive to amount of road than males?"
+	 - sex $\times$ road type: "do females prefer major over minor roads more than males?"
+	 - road type $\times$ road length: "does amount of road affect crossings differently for different road types?"
+- **Three-way interaction**: does the difference of the effect of road length between road types differ between sexes?
+     	 
+## Centering [@schielzeth_simple_2010]
+
+- in interaction models, interpretation of main effects **depends on the center-point of the predictors**
+- *centering* makes main effects much more interpretable
+     - numeric predictors (subtracting the mean by default; other choices could be sensible)
+     - categorical predictors: sum-to-zero (weighted or unweighted)
+- e.g. if Gregorian year is a predictor, the intercept is at year 0 (!)
+- also improves model stability, decorrelates coefficients
+
+## Scaling [@schielzeth_simple_2010]
+
+- scaling parameters improves interpretability
+- standard deviation scaling:  
+parameter magnitudes = importance
+
+```{r scale_comp,fig.width=10}
+mtcars_big <- lm(mpg~.,data=mtcars)
+mtcars_big_sc <- lm(mpg~.,data=as.data.frame(scale(mtcars)))
+dwfun <- function(.) { dwplot(.,order_vars=names(sort(coef(.))))+
+                           geom_vline(xintercept=0,linetype=2)}
+plot_grid(dwfun(mtcars_big),dwfun(mtcars_big_sc))
+```
 
 ## LM diagnostics
 
-- fitted vs. residual: pattern in mean?
-- scale-location: pattern in variance?
-- Q-Q plot: Normal distribution?
+- fitted vs. residual: pattern in mean? (linearity)
+- scale-location: pattern in variance? (homoscedasticity)
+- Q-Q plot: Normality of **residuals**
 - leverage/Cook's distance: influential points?
+- independence is often hard to test
+- Normality is the **least important** of these assumptions
+ 
+## LM diagnostics
+
+```{r lmdiag,fig.width=8,fig.height=8}
+par(mfrow=c(2,2))
+plot(cars_lm)
+```
+
+- smooth lines help interpretation
+- highlighted points are 3 most extreme (`id.n` argument)
 
 ## Diagnostics
 
@@ -176,7 +225,16 @@ data(lizards,package="brglm")
 - everyone else: "how do I decide whether to worry?"
 - statisticians: "..."
 
-## From LM to GLM
+## testing hypotheses and interpreting results
+
+- parameter-by-parameter: `summary()` ($t$ test)
+- multi-parameter comparisons: `anova()`, `car::Anova()` ($F$ test)
+- order matters
+- interactions/main effects matter
+
+# From LM to GLM
+
+## Why GLMs?
 
 - assumptions of LMs do break down sometimes
 - count data: discrete, non-negative
@@ -189,13 +247,18 @@ https://twitter.com/thedavidpowell/status/984432764215754753
 - vast majority of GLMs
     - *logistic regression* (binary/Bernoulli data)
     - *Poisson regression* (count data)
-
+- lots of GLM theory carries over from LMs
+    - formulas
+    - parameter interpretation (partly)
+    - diagnostics (partly)
+	
 ## link functions
 
 - transform *prediction*, not response
 - e.g. rather than $\log(\mu) = \beta_0+\beta_1 x$,
 use $\mu = \exp(\beta_0+\beta_1 x)$
 - in this case log is the **link function**, exp is the **inverse link** function
+- extreme observations don't cause problems (usually)
 
 ## families
 
@@ -204,17 +267,47 @@ use $\mu = \exp(\beta_0+\beta_1 x)$
      - Poisson: log (exponential)
      - binomial: logit/log-odds (logistic)
 
+## log link
+
+- proportional scaling of effects
+- small values of coefficients ($<0.1$) $\approx$ proportionality
+- otherwise change per unit is $\exp(\beta)$
+- large parameter values ($>10$) mean some kind of trouble
+
 ## logit link
 
+```{r logit}
+par(las=1,bty="l")
+curve(plogis(x),from=-5,to=5,ylab="logit(x)")
+```
 
+- `qlogis()` function (`plogis()` is logistic/inverse-link)
+- *log-odds* ($\log(p/(1-p))$)
+- most natural scale for probability calculations
+- interpretation depends on *base probability*
+     - small probability: like log (proportional)
+     - large probability: like log(1-p)
+	 - intermediate ($0.3 <p <0.7$): effect $\approx \beta/4$
 
-## estimation basics
+## back-transformation
+
+- confidence intervals are symmetric on link scale
+- can back-transform estimates and CIs for log
+- logit is hard (must pick a reference level)
+- don't back-transform standard errors!
+
+## estimation
 
 - iteratively re-weighted least-squares
+- usually Just Works
 
+## inference
 
-## testing hypotheses and interpreting results
+like LMs, but:
 
-- something here
+- one-parameter tests are usually $Z$ rather than $t$
+- CIs based on standard errors are approximate (Wald)
+- `confint.glm()` computes *likelihood profile* CIs
 
 ## References
+
