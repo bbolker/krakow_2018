@@ -120,7 +120,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Data visualization, focusing on ggplot and multilevel data</h1>
 <h4 class="author"><em>Ben Bolker</em></h4>
-<h4 class="date"><em>01:54 23 April 2018</em></h4>
+<h4 class="date"><em>06:49 23 April 2018</em></h4>
 
 </div>
 
@@ -276,7 +276,7 @@ g4 %+% transform(cbpp2,herd=reorder(herd,incidence/size))
 <div id="graphics-culture" class="section level2">
 <h2>Graphics culture</h2>
 <ul>
-<li>the gods: Cleveland (hierarchy), Tufte <span class="citation">(E. Tufte 2001; E. R. Tufte 1995; E. R. Tufte 1997; E. R. Tufte 2006)</span> (“chartjunk”, minimizing non-data-ink, sparklines)</li>
+<li>the gods: Cleveland (hierarchy), Tufte <span class="citation">(E. Tufte 2001; E. R. Tufte 1995; E. R. Tufte 1997; E. R. Tufte 2006)</span> (“chartjunk”, minimizing non-data-ink, sparklines), Tukey</li>
 <li>the demi-gods: Wilkinson (Grammar of Graphics) <span class="citation">(Wilkinson 1999)</span>, Wickham (ggplot <em>et al</em>) <span class="citation">(Wickham 2009)</span>, <a href="http://www.perceptualedge.com/">Stephen Few</a>, Kaiser Fung (<a href="http://junkcharts.typepad.com/junk_charts/">Junk Charts</a>)</li>
 <li>dionysians (infovis) vs. apollonians (statistical graphics) <span class="citation">(Gelman and Unwin 2013)</span></li>
 <li>graphics pedants: <a href="http://emdbolker.wikidot.com/blog:dynamite">dynamite plots</a>, pie charts (esp. 3D), dual-axis figures …</li>
@@ -297,13 +297,13 @@ g4 %+% transform(cbpp2,herd=reorder(herd,incidence/size))
 <h2>ggplot</h2>
 <ul>
 <li>newest</li>
-<li>based on Wilkinson’s ‘’Grammar of Graphics’’</li>
+<li>based on Wilkinson’s “Grammar of Graphics”</li>
 <li>documented in a book (see below) and on a <a href="http://had.co.nz/ggplot2">web site</a>, as well as an active <a href="http://groups.google.com/group/ggplot2">mailing list</a></li>
 <li>explicit mapping from variables to “aesthetics”: e.g. x, y, colour, size, shape</li>
 <li>implements faceting</li>
 <li>some data summaries etc. built in</li>
 <li>easier to overlay multiple data sets, data summaries, model predictions etc.</li>
-<li>no 3D plots (although see …)</li>
+<li>no 3D plots (although see the <a href="https://github.com/AckerDWM/gg3D">gg3D package</a>)</li>
 <li>rendering can be slow</li>
 <li><code>gridExtra</code>, <code>ggExtra</code>, <code>cowplot</code>, <code>directlabels</code> packages may be handy</li>
 <li><a href="http://www.ggplot2-exts.org/gallery/">ggplot gallery</a></li>
