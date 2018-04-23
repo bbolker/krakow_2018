@@ -20,6 +20,15 @@ title: "introduction"
 - too advanced:
     - ask! we can talk later
     - think about pedagogy
-- please give feedback as we go along
 
+## my heros
+
+Gelman, Harrell, Zuur (et al.), McElreath
+
+## feedback
+
+- post-it notes
+- every day: too fast/too slow; "one up, one down"
+- lots of opportunities for alternative topics
+- homework
 

@@ -36,6 +36,10 @@ author: "Ben Bolker"
 
 ## individual-based models
 
+- maximum detail
+
+## population-based models
+
 ## distribution models
 
 ## moment equations
