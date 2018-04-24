@@ -4,6 +4,11 @@ author: "Ben Bolker"
 bibliography: "../glmm.bib"
 ---
 
+![cc](pix/cc-attrib-nc.png)
+Licensed under the 
+[Creative Commons attribution-noncommercial license](http://creativecommons.org/licenses/by-nc/3.0/).
+Please share \& remix noncommercially, mentioning its origin.
+
 ```{r pkgs,message=FALSE}
 library(ggplot2); theme_set(theme_bw())
 library(ggExtra)
@@ -222,6 +227,8 @@ plot(cars_lm)
 
 ## a bad model [@Tiwari+2006]
 
+- this is based on a GLM, but the ideas are the same
+
 ```{r turtles,echo=FALSE}
 dat <- read.csv("../data/dufemalepers.csv") ## get data
 dat <- transform(dat,
@@ -239,7 +246,7 @@ newpars <- par(oldpars)
 
 ## original data/fit ...
 
-```{r turtle2}
+```{r turtle2,echo=FALSE}
 tmod <- glm(cbind(notdu,du)~density-1,
           subset=density>0,
           family=quasibinomial(link="log"),
@@ -280,7 +287,11 @@ ggplot(dat,aes(x=density,y=duprop))+
 - count data: discrete, non-negative
 - proportion data: discrete counts, $0 \le x \le N$
 
-https://twitter.com/thedavidpowell/status/984432764215754753
+- hard to transform to Normal
+- linear model doesn't make sense
+
+![](pix/twitter_glmjoke.png)
+<!-- https://twitter.com/thedavidpowell/status/984432764215754753 -->
 
 ## GLMs in action
 
@@ -291,31 +302,6 @@ https://twitter.com/thedavidpowell/status/984432764215754753
     - formulas
     - parameter interpretation (partly)
     - diagnostics (partly)
-
-## Family
-
-- family: what kind of data do I have?
-    - from **first principles**: family specifies the relationship between the mean and variance
-	- binomial: proportions, out of a total number of counts; includes binary (Bernoulli) ("logistic regression")
-	- Poisson (independent counts, no set maximum, or far from the maximum)
-	- other (Normal (`"gaussian"`), Gamma)
-- default family for `glm` is Gaussian
-
-## link functions
-
-- transform *prediction*, not response
-- e.g. rather than $\log(\mu) = \beta_0+\beta_1 x$,
-use $\mu = \exp(\beta_0+\beta_1 x)$
-- in this case log is the **link function**, exp is the **inverse link** function
-- extreme observations don't cause problems (usually)
-
-## family definitions
-
-- link function plus variance function
-- typical defaults
-     - Poisson: log (exponential)
-     - binomial: logit/log-odds (logistic)
-
 
 ## Most GLMs are logistic
 
@@ -359,6 +345,30 @@ ggplot(d,aes(x=v,y=n))+geom_point(size=5)+
     labs(y="",x="Google Scholar hits")
 ```
 
+## Family
+
+- family: what kind of data do I have?
+    - from **first principles**: family specifies the relationship between the mean and variance
+	- binomial: proportions, out of a total number of counts; includes binary (Bernoulli) ("logistic regression")
+	- Poisson (independent counts, no set maximum, or far from the maximum)
+	- other (Normal (`"gaussian"`), Gamma)
+- default family for `glm` is Gaussian
+
+## link functions
+
+- transform *prediction*, not response
+- e.g. rather than $\log(\mu) = \beta_0+\beta_1 x$,
+use $\mu = \exp(\beta_0+\beta_1 x)$
+- in this case log is the **link function**, exp is the **inverse link** function
+- extreme observations don't cause problems (usually)
+
+## family definitions
+
+- link function plus variance function
+- typical defaults
+     - Poisson: log (exponential)
+     - binomial: logit/log-odds (logistic)
+
 ## log link
 
 - proportional scaling of effects
@@ -384,6 +394,14 @@ curve(qlogis(x),from=plogis(-4),to=plogis(4),xlab="x (probability)",ylab="logit(
      - large probability: like log(1-p)
 	 - intermediate ($0.3 <p <0.7$): effect $\approx \beta/4$
 
+## binomial models
+
+- for Poisson, Bernoulli responses we only need one piece of information
+- how do we specify denominator ($N$ in $k/N$)?
+- traditional R: response is two-column matrix `cbind(k,N-k)` **not** `cbind(k,N)`
+- also allowed: response is proportion ($k/N$), also specify `weights=N`
+- if equal for all cases and specified on the fly need to replicate:  
+`glm(p~...,data,weights=rep(N,nrow(data)))`
 
 ## diagnostics
 
@@ -392,6 +410,12 @@ curve(qlogis(x),from=plogis(-4),to=plogis(4),xlab="x (probability)",ylab="logit(
 - goodness of fit tests, $R^2$ etc. hard (can always compute `cor(observed,predict(model, type="response"))`)
 - residuals are *Pearson residuals* by default ($(\textrm{obs}-\textrm{exp})/V(\textrm{exp})$); predicted values are on the effect scale (e.g. log/logit) by default (use `type="response"` to get data-scale predictions)
 - also see `DHARMa` package
+
+## overdispersion
+
+- too much variance
+- more detail later
+- should have residual df $\approx$ residual deviance
 
 ## back-transformation
 
@@ -415,17 +439,19 @@ like LMs, but:
 
 ## Common(est?) `glm()` problems
 
-- neglecting overdispersion
 - binomial/Poisson models with non-integer data
-- equating negative binomial with binomial rather than Poisson
 - failing to specify `family` ($\to$ linear model);
 using `glm()` for linear models (unnecessary)
 - predictions on effect scale
 - using $(k,N)$ rather than $(k,N-k)$ in binomial models
-- worrying about overdispersion unnecessarily (binary/Gamma)
 - back-transforming SEs rather than CIs
-- ignoring random effects
+
+- neglecting overdispersion
 - Poisson for *underdispersed* responses
+- equating negative binomial with binomial rather than Poisson (
+- worrying about overdispersion unnecessarily (binary/Gamma)
+- ignoring random effects
+
 
 # Example
 

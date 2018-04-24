@@ -7,14 +7,12 @@ old syllabus: https://www.usosweb.uj.edu.pl/kontroler.php?_action=katalog2%2Fprz
      - dataviz:
          - show HIV pictures
 	     - HW: draw a picture (of your data?)
-		 - reference gg3D
 	 - inference:
 	     - live exercise: find a paper and interpret it
 		 - HW: find a paper and interpret it
-		 - take stuff from Dushoff 708 lecture?
 		 - Wald/likelihood/Bayesian table?
 	 - glm basic: finish!
-	     - incorporate contrasts document?
+	     - incorporate stuff from contrasts document?
 	 - glm intermediate: finish!
 	     - incorporate stuff from IISC workshop
 		 - incorporate Tiwari 2006 example

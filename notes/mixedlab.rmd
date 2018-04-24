@@ -189,9 +189,11 @@ We can also do this with `tidy::augment()` and `stat_qq()` (although there are a
 ```{r ggqq,fig.keep="none"}
 ggplot(augment(lmer2),
        aes(sample=.resid/sd(.resid)))+  ## scale to variance=1
-        stat_qq(aes(group=1,colour=roostsitu))+
+        stat_qq(aes(colour=roostsitu))+
     geom_abline(intercept=0,slope=1)
 ```
+
+With `colour` specified this computes Q-Q statistics for each group separately - there is no super-easy way to compute the Q-Q statistics for the whole data set and then draw the colours per group.
 
 There are some deviations here, but not enough that I would worry very much.
 In particular, the distribution is slightly *thin-tailed* (the smallest residuals are largest than expected, and the largest residuals are smaller than expected),
@@ -553,4 +555,4 @@ g0 + geom_line(aes(x=as.numeric(mnth),y=mpred1.fit,group=subject),
 * originally developed for NCEAS summer institute, July 2013
 * updated, Alaska ASA workshop, August 2014
 * updated, Ottawa workshop, Jan 2016 (removed JAGS material)
-
+* updated, Jagielloninan workshop, Apr 2018

@@ -20,8 +20,7 @@ knit_hooks$set(basefig=function(before, options, envir) {
                        par(bty="l",las=1)
                    } else { }
                })
-library("ggplot2")
-theme_set(theme_bw())
+library("ggplot2"); theme_set(theme_bw())
 ``` 
 
 ## Goals/contexts of data visualization
@@ -162,7 +161,7 @@ Possible solutions:
 
 ## Graphics culture 
 
-- the gods: Cleveland (hierarchy), Tufte [@tufte_visual_2001;@tufte_envisioning_1995;@tufte_visual_1997;@tufte_beautiful_2006] ("chartjunk", minimizing non-data-ink, sparklines)
+- the gods: Cleveland (hierarchy), Tufte [@tufte_visual_2001;@tufte_envisioning_1995;@tufte_visual_1997;@tufte_beautiful_2006] ("chartjunk", minimizing non-data-ink, sparklines), Tukey
 - the demi-gods: Wilkinson (Grammar of Graphics) [@Wilkinson1999], Wickham (ggplot *et al*) [@wickham_ggplot2_2009], [Stephen Few](http://www.perceptualedge.com/), Kaiser Fung ([Junk Charts](http://junkcharts.typepad.com/junk_charts/))
 - dionysians (infovis) vs. apollonians (statistical graphics) [@gelman_infovis_2013]
 - graphics pedants: [dynamite plots](http://emdbolker.wikidot.com/blog:dynamite), pie charts (esp. 3D), dual-axis figures ...
@@ -178,13 +177,13 @@ Possible solutions:
 ## ggplot 
 
 - newest
-- based on Wilkinson's ''Grammar of Graphics''
+- based on Wilkinson's "Grammar of Graphics"
 - documented in a book (see below) and on a [web site](http://had.co.nz/ggplot2), as well as an active [mailing list](http://groups.google.com/group/ggplot2)
 - explicit mapping from variables to "aesthetics": e.g. x, y, colour, size, shape
 - implements faceting
 - some data summaries etc. built in
 - easier to overlay multiple data sets, data summaries, model predictions etc.
-- no 3D plots (although see ...)
+- no 3D plots (although see the [gg3D package](https://github.com/AckerDWM/gg3D))
 - rendering can be slow
 - `gridExtra`, `ggExtra`, `cowplot`, `directlabels` packages may be handy
 - [ggplot gallery](http://www.ggplot2-exts.org/gallery/)

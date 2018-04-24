@@ -4,6 +4,8 @@ title: "statistical essentials for modeling"
 bibliography: ../glmm.bib
 ---
 
+# Philosophy
+
 ## What do we mean by statistical inference?
 
 answering **scientific questions**
@@ -92,6 +94,40 @@ most typical scientific goal
 - "the difference between significant and non-significant is not significant" [@gelman_difference_2006]
 - try talking about statistical **clarity** instead
 
+## p-value example
+
+```{r pvals,echo=FALSE}
+dd <- data.frame(ttt=LETTERS[1:4],y=c(1,1,5,5),bar=c(0.6,1.5,0.6*5,1.5*5))
+dd <- transform(dd,pvalue=2*pnorm(y,sd=bar/1.96,lower.tail=FALSE))
+cc <- as.matrix(dd[,"pvalue"])
+dimnames(cc) <- list(dd$ttt,"p value")
+printCoefmat(cc,P.values=TRUE,has.Pvalue=TRUE,cs.ind=numeric(0),
+             tst.ind=numeric(0),digits=3)
+
+```{r pvalplot,echo=FALSE}
+ggplot(dd,aes(ttt,y))+
+    geom_pointrange(aes(ymin=y-bar,ymax=y+bar))+
+    geom_hline(yintercept=0,lty=2)+
+    scale_y_continuous(breaks=numeric(0))+
+    labs(x="condition",y="estimate")+
+    theme_classic()
+```
+
+## Real example [@dushoff_mortality_2006]
+
+From a study of influenza mortality, estimating fraction of
+mortality attributable to influenza A, influenza B, or
+weather alone ...
+
+![](pix/flu1.png)
+
+Why does weather not seem to have an effect???
+
+## The explanation
+
+![](pix/flu2.png)
+
+# realism in data analysis
 
 ## how much data do you need for a given model?
 
@@ -106,6 +142,8 @@ most typical scientific goal
 - discard interactions
 - simplify questions
 - collapse variables, e.g. by PCA
+
+# overview of inference
 
 ## modes of inference (@Bolker2008 chapter 6)
 
@@ -143,5 +181,23 @@ legend("topleft",c("profile","information"),lty=1,col=c("black","gray"),
 text(c(0.65,0.72),c(0.027,0.036),c("80%","99.5%"))
 par(op)
 ```
+
+## Bayesian stats 101
+
+- frequentist inference: based on likelihood function + sampling properties
+- ${\cal L} = \textrm{Prob}(\theta|x)$
+- Bayesian inference: based on likelihood + prior
+    - $\textrm{Posterior}(\theta) \propto {\cal L}(\theta|x) \textrm{Prior}(\theta)$
+- priors are important
+- Bayesian *credible intervals* based on highest posterior density or quantiles
+
+results **more explicitly** based on model + prior choices
+
+## Bayesian stats 102
+
+- *Markov chain Monte Carlo*: computational methods for sampling from the posterior
+- once we have a a sample we can compute mean, confidence intervals ...
+- e.g. `MCMCglmm`, `brms`, `rethinking`
+
 
 ## References

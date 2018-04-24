@@ -8,16 +8,16 @@ title: "introduction"
 - appreciation for statistical rules  
 (practical rigor, not methodological rigor)
 - ways to think about/look at data
-- familiarity with statistical techniques
-- landscape of more advanced techniques
+- familiarity with statistical techniques (GLM, basic GLMMs)
+- landscape of more advanced techniques (GLMM)
 
 ## ground rules
 
 - no "stupid" questions
-- too basic:
+- if the material seems too hard:
     - ask! I can help later
     - get what you can 
-- too advanced:
+- if the material seems too easy:
     - ask! we can talk later
     - think about pedagogy
 
@@ -31,4 +31,4 @@ Gelman, Harrell, Zuur (et al.), McElreath
 - every day: too fast/too slow; "one up, one down"
 - lots of opportunities for alternative topics
 - homework
-
+- https://etherpad.net/p/krakow_2018
