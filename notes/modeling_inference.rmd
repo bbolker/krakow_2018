@@ -105,6 +105,7 @@ printCoefmat(cc,P.values=TRUE,has.Pvalue=TRUE,cs.ind=numeric(0),
              tst.ind=numeric(0),digits=3)
 
 ```{r pvalplot,echo=FALSE}
+library(ggplot2); theme_set(theme_bw())
 ggplot(dd,aes(ttt,y))+
     geom_pointrange(aes(ymin=y-bar,ymax=y+bar))+
     geom_hline(yintercept=0,lty=2)+
@@ -154,7 +155,7 @@ e.g. $Z$ vs $\chi^2$
 - finite-size vs asymptotic:  
 e.g. $Z$ vs. $t$
 
-```{r profile_vs_wald,echo=FALSE,message=FALSE}
+```{r profile_vs_wald,echo=FALSE,message=FALSE,fig.width=8,fig.height=8}
 par(las=1,bty="l")
 library(ellipse)
 library(bbmle)
