@@ -2,3 +2,8 @@
 .Rhistory
 gh-pages/
 notes/*_files/
+*.aux
+*.log
+*.snm
+*.tex
+*.out
