@@ -1,0 +1,55 @@
+---
+title: "GLMs for binary data"
+author: "Ben Bolker"
+---
+
+```{r}
+g2 <- read.table("../data/gophertortoise.txt",header=TRUE,comment="#")
+```
+
+```{r}
+library(ggplot2)
+plot1 <- ggplot(g2,aes(CL,status,colour=Sex))+geom_point()
+plot1 + geom_smooth(method="glm",
+                    method.args=list(family="binomial"))
+```
+
+```{r}
+plot1 + geom_smooth(method="gam",
+                linetype=2,
+                formula=y~s(x),
+                method.args=list(family="binomial"))
+
+```
+
+Special case of binomial data
+
+- overdispersion can't be detected
+- no need for `weights` argument ($N=1$)
+- diagnostics are more difficult
+
+```{r}
+model1 <- glm(status~CL*Sex,data=g2,family=binomial)
+```
+
+```{r}
+plot(model1)
+```
+
+```{r}
+library(rms)
+model2 <- lrm(status~CL*Sex,data=g2,x=TRUE,y=TRUE)
+resid(model2,"gof")
+```
+
+```{r}
+library(DHARMa)
+ss <- simulateResiduals(model1)
+plot(ss)
+```
+
+## Complete separation
+
+## Overall goodness of fit/model comparison
+
+pseudo-$R^2$
