@@ -3,7 +3,16 @@ title: "generalized linear mixed models"
 author: "Ben Bolker"
 bibliography: "../glmm.bib"
 header-includes:
-   - \usepackage{amsmath}
+- \usepackage{amsmath}
+- \newcommand{\X}{\boldsymbol X}
+- \newcommand{\Z}{\boldsymbol Z}
+- \newcommand{\bbeta}{\boldsymbol \beta}
+- \newcommand{\bb}{\boldsymbol b}
+- \newcommand{\bu}{\boldsymbol u}
+- \newcommand{\bLambda}{\boldsymbol \Lambda}
+- \newcommand{\bEta}{\boldsymbol \eta}
+- \newcommand{\btheta}{\boldsymbol \theta}
+- \newcommand{\bzero}{\boldsymbol 0}
 ---
 
 \newcommand{\bm}[1]{#1}
@@ -17,7 +26,7 @@ knit_hooks$set(crop=hook_pdfcrop)
 opts_chunk$set(echo=FALSE)
 ```
 
-```{r pkgs}
+```{r pkgs,message=FALSE}
 library(lattice)
 library(plotrix) ## for axis.break
 library(reshape2)
@@ -33,15 +42,6 @@ library(scales) ## for 'scientific', 'trans_format'
 theme_set(theme_bw())
 ```
 
-\newcommand{\X}{\bm X}
-\newcommand{\Z}{\bm Z}
-\newcommand{\bbeta}{\bm \beta}
-\newcommand{\bb}{\bm b}
-\newcommand{\bu}{\bm u}
-\newcommand{\bLambda}{\bm Lambda}
-\newcommand{\bEta}{\bm \eta}
-\newcommand{\btheta}{\bm \theta}
-\newcommand{\bzero}{\bm 0}
 
 ## (Generalized) linear mixed models
 
@@ -59,7 +59,7 @@ theme_set(theme_bw())
 
 ## Coral protection from seastars (*Culcita*) by symbionts [@mckeon_multiple_2012]
 
-```{r culcita1,cache=TRUE,message=FALSE}
+```{r culcita1,cache=TRUE,message=FALSE,warning=FALSE}
 ## Culcita fits
 stierdat <- read.csv("../data/culcitalogreg.csv")
 stierdat$ttt <- as.factor(stierdat$ttt) ## treatment should be a factor
@@ -85,7 +85,7 @@ p <- with(m3,table(predation,ttt))
 ``` 
 
 
-```{r culcita2,warning=FALSE}
+```{r culcita2,warning=FALSE,message=FALSE}
 load("../data/culcita.RData")
 library(lme4)
 cmod1 <- glmer(predation~ttt+(1|block),data=culcita_dat,
@@ -259,7 +259,7 @@ plotfun(j.red2,m.acr.nofr,drop.cols=c(4,8))
 
 ## Technical definition
 
-$$
+\begin{equation*}
 \begin{split}
 \underbrace{Y_i}_{\text{response}} & \sim \overbrace{\text{Distr}}^{\substack{\text{conditional} \\ \text{distribution}}}(\underbrace{g^{-1}(\eta_i)}_{\substack{\text{inverse} \\ \text{link} \\ \text{function}}},\underbrace{\phi}_{\substack{\text{scale} \\ \text{parameter}}}) \\
 \underbrace{\bEta}_{\substack{\text{linear} \\ \text{predictor}}} & 
@@ -270,7 +270,7 @@ $$
 \underbrace{\bb}_{\substack{\text{conditional} \\ \text{modes}}}  & 
 \sim \text{MVN}(\bzero,\underbrace{\Sigma(\btheta)}_{\substack{\text{variance-} \\ \text{covariance} \\ \text{matrix}}})
 \end{split}
-$$
+\end{equation*}
 
 ## What are random effects?
 
@@ -294,15 +294,28 @@ A method for …
 ## Random-effect myths
 
 -   levels of random effects must always be sampled at random
-
 -   a complete sample cannot be treated as a random effect
-
 -   random effects are always a *nuisance variable*
-
 -   nothing can be said about the predictions of a random effect
-
 -   you should always use a random effect no matter how few levels you
-    have
+have
+
+## Use a random effect if:
+
+(from @bolker_glmm_2014)
+
+- don’t want to test hypotheses about differences between responses at particular levels of
+the grouping variable;
+- do want to quantify the variability among levels of the grouping variable;
+- do want to make predictions about unobserved levels of the grouping variable;
+- do want to combine information across levels of the grouping variable;
+- have variation in information per level (number of samples or noisiness);
+- have levels that are randomly sampled from/representative of a larger population;
+- have a categorical predictor that is a nuisance variable (i.e., it is not of direct interest, but should be controlled for).
+
+See also @Crawley2002; @gelman_analysis_2005
+
+If you have sampled fewer than five levels of the grouping variable, you should strongly consider treating it as a fixed effect even if one or more of the criteria above apply.
 
 Estimation
 ==========
@@ -318,7 +331,7 @@ Overview
 
 -   Goodness-of-fit `*integrates*` over conditional modes
 
-```{r plotex}
+```{r plotex,message=FALSE}
 set.seed(101)
 dd <- data.frame(f=gl(5,5))
 dd$y <- simulate(~1+(1|f),newdata=dd,
@@ -390,7 +403,7 @@ best methods needed for large variance, small clusters
 
 ## Laplace-approximation diagnostics
 
-```{r lapl}
+```{r lapl,fig.width=10,fig.height=10}
 library(lattice)
 aspect <- 0.6
 xlab <- "z"; ylab <- "density"; type <- c("g","l"); scaled <- FALSE
@@ -411,7 +424,7 @@ print(xyplot(y ~ zvals|id, data=mm,
 
 ## Estimation: *Culcita* [@mckeon_multiple_2012]
 
-````{r stierfig2}
+````{r stierfig2,warning=FALSE,fig.width=8,fig.height=8}
 library(coefplot2)
 cvec <- c("purple","magenta","blue","black","darkgreen")
 mnames <- c("GLM (fixed)","GLM (pooled)","PQL","Laplace","AGQ")
@@ -446,6 +459,13 @@ approximation for GLM(M)s
     -   for GLMMs, distributions are approximate anyway (Bartlett corrections)
     -   Kenward-Roger correction? [@stroup_rethinking_2014]
 -   Profile confidence intervals: expensive/fragile
+
+## p-values choices?
+
+- guess from classic design ([R code](calcDenDF.R))
+- conservative: take minimum number of groups - 1
+- Satterthwaite/Kenward-Roger (`lmerTest`, LMMs only)
+- parametric bootstrap (`pbkrtest`)
 
 ## Parametric bootstrapping
 
@@ -539,7 +559,3 @@ See also:
 ![image](pix/foxbook.png)
 
 (code ASPROMP8)
-
-
-
-

@@ -1,8 +1,14 @@
 ##' @param fixed fixed-effects model formula
-##' @param grps
-##' @param data
-##' @param random
-##' @param n0
+##' @param grps grouping factors
+##' @param data data frame
+##' @param random random-effects formula
+##' @param n0 ???
+##' @examples
+##' calcDenDF(~age,grps="Subject",data=nlme::Orthodont)
+##' calcDenDF(~age,data=nlme::Orthodont,random=~age|Subject)
+##' calcDenDF(~age,grps="Subject",data=nlme::Orthodont,random=~1|Subject)
+##' calcDenDF(~age,data=nlme::Orthodont,random=~1|Subject)
+
 calcDenDF <- function(fixed,grps,data,random=NULL,n0=1) {
     ## n0 is a hack (still not matching some values properly)
     ## try to construct random effects hierarchy
